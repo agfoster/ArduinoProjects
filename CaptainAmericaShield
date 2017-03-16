@@ -1,0 +1,176 @@
+// Use if you want to force the software SPI subsystem to be used for some reason (generally, you don't)
+// #define FASTLED_FORCE_SOFTWARE_SPI
+// Use if you want to force non-accelerated pin access (hint: you really don't, it breaks lots of things)
+// #define FASTLED_FORCE_SOFTWARE_SPI
+// #define FASTLED_FORCE_SOFTWARE_PINS
+#include "FastLED.h"
+#include "QueueArray.h"
+ 
+///////////////////////////////////////////////////////////////////////////////////////////
+//
+// Move a white dot along the strip of leds.  This program simply shows how to configure the leds,
+// and then how to turn a single pixel white and then off, moving down the line of pixels.
+//
+ 
+// How many leds are in the strip?
+#define NUM_LEDS 109
+ 
+// Data pin that led data will be written out over
+#define DATA_PIN 4
+ 
+// Clock pin only needed for SPI based chipsets when not using hardware SPI
+#define CLOCK_PIN 5
+ 
+// This is an array of leds.  One item for each led in your strip.
+CRGB leds[NUM_LEDS];
+ 
+//builds grid for mapping
+#define WIDTH 14 //columns
+#define HEIGHT 16 //rows
+unsigned long grid[WIDTH][HEIGHT];
+ 
+// This function sets up the ledsand tells the controller about them
+void setup() {
+  // sanity check delay - allows reprogramming if accidently blowing power w/leds
+  delay(500);
+  FastLED.addLeds<DOTSTAR, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);
+  LEDS.setBrightness(84);
+}
+ 
+// This function runs over and over, and is where you do the magic to light
+// your leds.
+ 
+int DELAY = 3;
+int LONGDELAY = 150;
+int LOOPS = 5
+;
+ 
+void convertAndShow() {
+  leds[3] = grid[0][0]; leds[2] = grid[0][1]; leds[1] = grid[0][2]; leds[0] = grid[0][3];
+  leds[10] = grid[1][0]; leds[9] = grid[1][1]; leds[8] = grid[1][2]; leds[7] = grid[1][3]; leds[6] = grid[1][4]; leds[5] = grid[1][5]; leds[4] = grid[1][6];
+  leds[18] = grid[2][0]; leds[17] = grid[2][1]; leds[16] = grid[2][2]; leds[15] = grid[2][3]; leds[14] = grid[2][4]; leds[13] = grid[2][5]; leds[12] = grid[2][6]; leds[11] = grid[2][7];
+  leds[27] = grid[3][0]; leds[26] = grid[3][1]; leds[25] = grid[3][2]; leds[24] = grid[3][3]; leds[23] = grid[3][4]; leds[22] = grid[3][5]; leds[21] = grid[3][6]; leds[20] = grid[3][7]; leds[19] = grid[3][8];
+  leds[37] = grid[4][0]; leds[36] = grid[4][1]; leds[35] = grid[4][2]; leds[34] = grid[4][3]; leds[33] = grid[4][4]; leds[32] = grid[4][5]; leds[31] = grid[4][6]; leds[30] = grid[4][7]; leds[29] = grid[4][8]; leds[28] = grid[4][9];
+  leds[48] = grid[5][0]; leds[47] = grid[5][1]; leds[46] = grid[5][2]; leds[45] = grid[5][3]; leds[44] = grid[5][4]; leds[43] = grid[5][5]; leds[42] = grid[5][6]; leds[41] = grid[5][7]; leds[40] = grid[5][8]; leds[39] = grid[5][9]; leds[38] = grid[5][10];
+  leds[59] = grid[6][0]; leds[58] = grid[6][1]; leds[57] = grid[6][2]; leds[56] = grid[6][3]; leds[55] = grid[6][4]; leds[54] = grid[6][5]; leds[53] = grid[6][6]; leds[52] = grid[6][7]; leds[51] = grid[6][8]; leds[50] = grid[6][9]; leds[49] = grid[6][10];
+  leds[70] = grid[7][0]; leds[69] = grid[7][1]; leds[68] = grid[7][2]; leds[67] = grid[7][3]; leds[66] = grid[7][4]; leds[65] = grid[7][5]; leds[64] = grid[7][6]; leds[63] = grid[7][7]; leds[62] = grid[7][8]; leds[61] = grid[7][9]; leds[60] = grid[7][10];
+  leds[80] = grid[8][0]; leds[79] = grid[8][1]; leds[78] = grid[8][2]; leds[77] = grid[8][3]; leds[76] = grid[8][4]; leds[75] = grid[8][5]; leds[74] = grid[8][6]; leds[73] = grid[8][7]; leds[72] = grid[8][8]; leds[71] = grid[8][9];
+  leds[89] = grid[9][0]; leds[88] = grid[9][1]; leds[87] = grid[9][2]; leds[86] = grid[9][3]; leds[85] = grid[9][4]; leds[84] = grid[9][5]; leds[83] = grid[9][6]; leds[82] = grid[9][7]; leds[81] = grid[9][8];
+  leds[97] = grid[10][0]; leds[96] = grid[10][1]; leds[95] = grid[10][2]; leds[94] = grid[10][3]; leds[93] = grid[10][4]; leds[92] = grid[10][5]; leds[91] = grid[10][6]; leds[90] = grid[10][7];
+  leds[104] = grid[11][0]; leds[103] = grid[11][1]; leds[102] = grid[11][2]; leds[101] = grid[11][3]; leds[100] = grid[11][4]; leds[99] = grid[11][5]; leds[98] = grid[11][6];
+  leds[108] = grid[12][0]; leds[107] = grid[12][1]; leds[106] = grid[12][2]; leds[105] = grid[12][3];
+  FastLED.show();
+}
+ 
+void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } }
+ 
+void firstLoop() {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::Blue;
+    FastLED.show();
+    delay(DELAY);
+    fadeall();
+  }
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::White;
+    FastLED.show();
+    delay(DELAY);
+    fadeall();
+  }
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = CRGB::Red;
+    FastLED.show();
+    delay(DELAY);
+    fadeall();
+  }
+  for (int i = NUM_LEDS; i >= 0; i--) {
+    leds[i] = CRGB::Blue;
+    FastLED.show();
+    delay(DELAY);
+    fadeall();
+  }
+  for (int i = NUM_LEDS; i >= 0; i--) {
+    leds[i] = CRGB::White;
+    FastLED.show();
+    delay(DELAY);
+    fadeall();
+  }
+  for (int i = NUM_LEDS; i >= 0; i--) {
+    leds[i] = CRGB::Red;
+    FastLED.show();
+    delay(DELAY);
+    fadeall();
+  }
+}
+ 
+void RightLeft(){
+  for (int x = 0; x <= WIDTH; x++){
+    for (int y = 0; y <= HEIGHT; y++) {
+      if (x % 3 == 0) grid[x][y] = 0x0000ff; //red, apparently?
+      if (x % 3 == 1) grid[x][y] = 0xffffff; //white, apparently?
+      if (x % 3 == 2) grid[x][y] = 0xff0000; //blue, apparently?
+    }
+  }
+  convertAndShow();
+  delay(LONGDELAY);
+  for (int x = 0; x <= WIDTH; x++){
+    for (int y = 0; y <= HEIGHT; y++) {
+      if (x % 3 == 2) grid[x][y] = 0x0000ff;
+      if (x % 3 == 0) grid[x][y] = 0xffffff;
+      if (x % 3 == 1) grid[x][y] = 0xff0000;
+    }
+  }
+  convertAndShow();
+  delay(LONGDELAY);
+  for (int x = 0; x <= WIDTH; x++){
+    for (int y = 0; y <= HEIGHT; y++) {
+      if (x % 3 == 1) grid[x][y] = 0x0000ff;
+      if (x % 3 == 2) grid[x][y] = 0xffffff;
+      if (x % 3 == 0) grid[x][y] = 0xff0000;
+    }
+  }
+  convertAndShow();
+  delay(LONGDELAY);
+}
+ 
+void BottomTop(){
+  for (int x = 0; x <= WIDTH; x++){
+    for (int y = 0; y <= HEIGHT; y++) {
+      if (x % 3 == 0) grid[y][x] = 0x0000ff; //red, apparently?
+      if (x % 3 == 1) grid[y][x] = 0xffffff; //white, apparently?
+      if (x % 3 == 2) grid[y][x] = 0xff0000; //blue, apparently?
+    }
+  }
+  convertAndShow();
+  delay(LONGDELAY);
+  for (int x = 0; x <= WIDTH; x++){
+    for (int y = 0; y <= HEIGHT; y++) {
+      if (x % 3 == 2) grid[y][x] = 0x0000ff;
+      if (x % 3 == 0) grid[y][x] = 0xffffff;
+      if (x % 3 == 1) grid[y][x] = 0xff0000;
+    }
+  }
+  convertAndShow();
+  delay(LONGDELAY);
+  for (int x = 0; x <= WIDTH; x++){
+    for (int y = 0; y <= HEIGHT; y++) {
+      if (x % 3 == 1) grid[y][x] = 0x0000ff;
+      if (x % 3 == 2) grid[y][x] = 0xffffff;
+      if (x % 3 == 0) grid[y][x] = 0xff0000;
+    }
+  }
+  convertAndShow();
+  delay(LONGDELAY);
+}
+ 
+void loop() {
+ 
+  for (int i = LOOPS; i >= 0 ; i--) {
+    RightLeft();  
+  }
+  firstLoop();  
+  for (int i = LOOPS; i >= 0 ; i--) {
+    BottomTop();  
+  }
+  firstLoop();  
+}
